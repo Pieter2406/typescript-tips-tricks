@@ -13,17 +13,18 @@ export type KeysOfType<T, U> = Exclude<
 >;
 
 export type PrimitiveKeysOf<T> = KeysOfType<T, PrimitiveType>;
-
-type FunctionPropertiesOf<T> = { [K in keyof T]: T[K] extends (args: any) => any ? K : never }[keyof T];
+export type FunctionType = (...args: any) => any;
+// https://www.typescriptlang.org/docs/handbook/2/mapped-types.html
+type FunctionPropertyNames<T> = { [K in keyof T]: T[K] extends FunctionType ? K : never }[keyof T];
 
 // Zie Hieronder voor een uitleg over Pick
 // WriteableKeys is ook een ts-essentials functie en gaat dus een union-type teruggeven van alle keys (namen van properties)
-// van een class/interface/type T die "schrijfbaar" zijn (en dus niet readonly of private)
+// van een class/interface/type T die "schrijfbaar" zijn (dus niet readonly of private)
 // De details van dit type gaan buiten de scope van deze talk, maar in essentie is dit volledig op te bouwen
 // uit ingebouwde functies, zonder extra "hackyness".
 type WriteablePropertiesOf<T> = Pick<T, WritableKeys<T>>;
 
-type FilterOutFunctionPropertiesOf<T> = Omit<T, FunctionPropertiesOf<T>>;
+type FilterOutFunctionPropertiesOf<T> = Omit<T, FunctionPropertyNames<T>>;
 
 // AssignablePropertiesOf wordt gedefinieerd in termen van andere types
 // Doordat we types kunnen definieren in functie van andere types, kunnen we complexe maar toch duidelijke
@@ -120,3 +121,18 @@ function on(event: RpgCharacterEvent) {
       return;
   }
 }
+
+type TestType1 = {
+  a: number;
+  b: string;
+  c: boolean;
+};
+
+const example: TestType1[keyof TestType1] = {} as any;
+
+type UnionType = 'a' | 'b';
+
+type FilterOutTypes<T, FilteredTypes> = { [K in keyof T]: T[K] extends FilteredTypes ? never : K }[keyof T];
+function testF(param: FilterOutTypes<TestType1, string>, other: UnionType) {}
+
+testF('', 'b');

@@ -1,17 +1,17 @@
 import { AssignablePropertiesOf } from '../util-types';
 
 // Een constructor in typescript wordt gezien als een "new" functie.
-// Het ConstructorOfType<T> type is een "conditional type".
+// Het TypedConstructorType<T> type is een "conditional type".
 // Dit is te zien aan de ternaire if-else operator (condition ? true : false)
 // Een conditional type hier is een hulpmiddel voor 2 zaken
 // 1. Helpt voor typesafety: Het "never" keyword in typescript wil zeggen dat er geen type toe te wijzen is is en wordt
 //    tijdens het infereren van alle types "weggeknipt" uit het contract
 // 2. Het geeft, in het geval dat T een constructor heeft, T terug als type zodat dit verder kan gebruikt worden door typescript
 //    om types te infereren bij het invullen van parameters (zie BuilderWithBadInference.ts)
-// Dit 2de punt is dus het antwoord op de vraag: waarom gebruiken we niet gewoon ConstructorType ipv ObjectWithConstructor
+// Dit 2de punt is dus het antwoord op de vraag: waarom gebruiken we niet gewoon ConstructorType ipv GenericConstructorType
 
 type ConstructorType = new (...arg: any) => any;
-type ObjectWithConstructor<T> = T extends ConstructorType ? T : never;
+type GenericConstructorType<T> = T extends ConstructorType ? T : never;
 
 export class Builder<T extends ConstructorType> {
   // InstanceType<T> is een ingebouwde functie van typescript die dus net type teruggeeft alsof het een instance zou zijn
@@ -26,7 +26,7 @@ export class Builder<T extends ConstructorType> {
   private _baseArgs: any[];
 
   // Typescript trick: private/public in een constructor maakt deze property automatisch toegankelijk in heel de class
-  constructor(private entityConstructor: ObjectWithConstructor<T>, ...args: ConstructorParameters<T>) {
+  constructor(private entityConstructor: GenericConstructorType<T>, ...args: ConstructorParameters<T>) {
     this._baseArgs = args;
     this._object = new entityConstructor(...this._baseArgs);
   }

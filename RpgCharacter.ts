@@ -13,11 +13,8 @@ export class RpgCharacter {
   cha: number = 0;
   race: Race = 'Elf';
   inventory: InventoryItem[] = [];
-  private characterType: CharacterType;
 
-  constructor(characterType: CharacterType, private privateInfo: string) {
-    this.characterType = characterType;
-  }
+  constructor(private characterType: CharacterType, private privateInfo: string) {}
 
   public heal(amount: number) {
     this.health = Math.min(this.maxHealth, this.health + amount);
